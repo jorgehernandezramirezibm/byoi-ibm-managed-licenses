@@ -47,7 +47,7 @@ Make sure that:
 * Your target operating system is supported on IBM Cloud VPC. See [About images](https://cloud.ibm.com/docs/vpc?topic=vpc-about-images).
 * cloud-init (RHEL) or Cloudbase-Init (Windows) is installed.
 * The required virtio drivers are installed.
-* The VSI can reach the IBM licensing endpoints (see [Troubleshooting](#troubleshooting)).
+* The VSI can reach the IBM licensing endpoints
 
 For more information, see [Creating a Linux custom image](https://cloud.ibm.com/docs/vpc?topic=vpc-create-linux-custom-image) and [Creating a Windows custom image](https://cloud.ibm.com/docs/vpc?topic=vpc-create-windows-custom-image).
 
@@ -161,29 +161,7 @@ Whether you import your own image or use live migration, you can license RHEL an
 * **RHEL**: cloud-init registers the system automatically against IBM's Red Hat Satellite servers. After a migration, run `sudo cloud-init clean --logs --reboot` to trigger the registration again, and check the result with `subscription-manager status`.
 * **Windows**: point Windows to IBM's KMS server (`kms.adn.networklayer.com:1688`), install the GVLK for your edition, and activate with `slmgr /ato`. Don't rely on Cloudbase-Init for this: it only knows the keys up to Windows Server 2016.
 
-## Troubleshooting
-
-### Check connectivity to the licensing endpoints
-
-RHEL (replace `<region>`):
-
-```bash
-curl -v https://rhha01.updates.<region>.iaas.service.networklayer.com:8443/rhsm
-```
-
-Windows:
-
-```powershell
-Test-NetConnection kms.adn.networklayer.com -Port 1688
-```
-
-`TcpTestSucceeded` must be `True`.
-
-### Windows activation fails with error 0xC004F074
-
-This error means Windows couldn't reach the KMS server. Check the connectivity test above, your security groups and network ACLs, and that the KMS server is set correctly (`slmgr /dlv` shows the configured KMS name).
-
-## Appendix
+## Utils
 
 ### 1. Why you can't rely on Cloudbase-Init to activate Windows
 
