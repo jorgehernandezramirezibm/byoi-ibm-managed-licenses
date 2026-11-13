@@ -161,7 +161,7 @@ Whether you import your own image or use live migration, you can license RHEL an
 * **RHEL**: cloud-init registers the system automatically against IBM's Red Hat Satellite servers. After a migration, run `sudo cloud-init clean --logs --reboot` to trigger the registration again, and check the result with `subscription-manager status`.
 * **Windows**: point Windows to IBM's KMS server (`kms.adn.networklayer.com:1688`), install the GVLK for your edition, and activate with `slmgr /ato`. Don't rely on Cloudbase-Init for this: it only knows the keys up to Windows Server 2016.
 
-## Utils
+# FAQs
 
 ### 1. Why you can't rely on Cloudbase-Init to activate Windows
 
