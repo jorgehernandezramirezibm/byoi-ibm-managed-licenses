@@ -2,7 +2,7 @@
 
 When you bring an operating system to IBM Cloud, whether you import your own image or use live migration, you usually bring your own license too.
 
-This guide covers the other option. Licensing that operating system through an **IBM-managed subscription**, so IBM Cloud provides the license. It covers **RHEL** and **Windows Server** on IBM Cloud VPC Virtual Server Instances (VSIs). It works with any migration method, including **Bring Your Own Image** and **live migration** with tools such as RackWare.
+This guide covers the other option: licensing that operating system through an **IBM-managed subscription**, so IBM Cloud provides the license instead. It covers **RHEL** and **Windows Server** on IBM Cloud VPC Virtual Server Instances (VSIs), and works with any migration method, including **Bring Your Own Image (BYOI)** and **live migration** with tools such as RackWare.
 
 > [!NOTE]
 > This is a community guide, not official IBM documentation. Last tested: November 2026. 
@@ -15,9 +15,6 @@ RHEL and Windows are licensed differently:
 |---------|------------------------------------------------------|
 | RHEL    | Automatic registration through cloud-init            |
 | Windows | Manual activation (`slmgr`) with a GVLK against IBM's KMS server |
-
-> [!IMPORTANT]
-> An IBM-managed license is billed as an OS license charge on top of the VSI compute cost. Check the pricing for your OS before you switch from BYOL.
 
 ### Tested environments
 
