@@ -61,14 +61,7 @@ Provision the target VSI from a stock image, or from a custom image without `-by
 
 # Licensing RHEL
 
-On RHEL, cloud-init handles the whole registration, as described in [Troubleshooting RHEL subscription issues](https://developer.ibm.com/tutorials/awb-troubleshoot-rhel-subscription-issues/). The system registers against IBM's regional Red Hat Satellite servers:
-
-```text
-rhha01.updates.<region>.iaas.service.networklayer.com:8443/rhsm
-rhha02.updates.<region>.iaas.service.networklayer.com:8443/rhsm
-```
-
-where `<region>` is your VPC region (for example, `eu-es`).
+On RHEL, cloud-init handles the whole registration, as described in [Troubleshooting RHEL subscription issues](https://developer.ibm.com/tutorials/awb-troubleshoot-rhel-subscription-issues/).
 
 ### 1. Rerun cloud-init
 
