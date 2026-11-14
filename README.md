@@ -13,7 +13,7 @@ RHEL and Windows are licensed differently:
 
 | OS      | Activation method                                    |
 |---------|------------------------------------------------------|
-| RHEL    | Automatic registration through cloud-init            |
+| RHEL    | Automatic registration through cloud-init against IBM's Red Hat subscription servers |
 | Windows | Manual activation (`slmgr`) with a GVLK against IBM's KMS server |
 | SUSE    | Automatic registration through a cloud-init vendor-data script against IBM's RMT server |
 
