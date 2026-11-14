@@ -65,7 +65,11 @@ On RHEL, cloud-init handles the whole registration, as described in [Troubleshoo
 
 ### 1. Remove the current registration
 
-If the system comes with an existing registration, run `sudo subscription-manager clean`. Unlike `unregister`, it doesn't need to reach the original subscription server, and it doesn't affect the source system. However if you reach to the source subscription server do simply `sudo subscription-manager unregister`.
+If the system comes with an existing registration, run 
+```bash
+sudo subscription-manager clean
+```
+Unlike `unregister`, it doesn't need to reach the original subscription server, and it doesn't affect the source system. However if you reach to the source subscription server do simply `sudo subscription-manager unregister` instead.
 
 ### 2. Rerun cloud-init
 
