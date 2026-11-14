@@ -63,7 +63,11 @@ Provision the target VSI from a stock image, or from a custom image without `-by
 
 On RHEL, cloud-init handles the whole registration, as described in [Troubleshooting RHEL subscription issues](https://developer.ibm.com/tutorials/awb-troubleshoot-rhel-subscription-issues/).
 
-### 1. Rerun cloud-init
+### 1. Unregister the current subscription
+
+If the system is already registered (for example, with your own Red Hat subscription), unregister it first with `sudo subscription-manager unregister`.
+
+### 2. Rerun cloud-init
 
 After the migration, clear the cloud-init state and reboot so the registration runs again:
 
@@ -74,7 +78,7 @@ sudo cloud-init clean --logs --reboot
 > [!CAUTION]
 > `cloud-init clean` makes cloud-init treat the next boot as a first boot. It runs all per-instance modules again, which can regenerate the SSH host keys and reapply hostname, user, and SSH key settings from the instance metadata. On a migrated server, check that this won't overwrite configuration you need to keep, and expect SSH clients to warn about changed host keys.
 
-### 2. Check the registration status
+### 3. Check the registration status
 
 ```bash
 sudo subscription-manager status
@@ -89,7 +93,7 @@ Expected output:
 Overall Status: Registered
 ```
 
-### 3. Check which server the system is registered against
+### 4. Check which server the system is registered against
 
 ```bash
 sudo subscription-manager config --list | grep -E "hostname|baseurl|prefix|port"
@@ -122,13 +126,17 @@ After the migration, run these commands from an **elevated** PowerShell or Comma
 > [!TIP]
 > `slmgr` shows its output in pop-up windows. To get the output in the console, run it through `cscript`, for example `cscript //nologo C:\Windows\System32\slmgr.vbs /dli`.
 
-### 1. Set the KMS server
+### 1. Remove the current license
+
+If Windows already has a license (for example, a MAK or retail key), remove it first, as described in [Remove the Windows license](#4-remove-the-windows-license).
+
+### 2. Set the KMS server
 
 ```powershell
 slmgr /skms kms.adn.networklayer.com:1688
 ```
 
-### 2. Install the GVLK for your edition
+### 3. Install the GVLK for your edition
 
 Find the key for your edition in Microsoft's [KMS client activation keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys). For example, for Windows Server 2025 Standard:
 
@@ -136,13 +144,13 @@ Find the key for your edition in Microsoft's [KMS client activation keys](https:
 slmgr /ipk TVRH6-WHNXV-R9WG3-9XRFY-MY832
 ```
 
-### 3. Activate
+### 4. Activate
 
 ```powershell
 slmgr /ato
 ```
 
-### 4. Check the license status
+### 5. Check the license status
 
 ```powershell
 slmgr /dli
@@ -154,12 +162,12 @@ The output should include `License Status: Licensed`.
 
 A GVLK (Generic Volume License Key) is a public product key published by Microsoft. It tells Windows to activate against a KMS server instead of Microsoft's online activation service. Here, that KMS server is IBM's, so the license is provided and billed through IBM Cloud.
 
-## Summary
+# Summary
 
-Whether you import your own image or use live migration, you can license RHEL and Windows on IBM Cloud VPC through an IBM-managed subscription instead of bringing your own license. The key is to avoid the `-byol` operating system as the base image, so that IBM Cloud knows it must provide the license.
+Whether you import your own image or use live migration, you can license RHEL and Windows on IBM Cloud VPC through an **IBM-managed subscription** instead of bringing your own license. The key is to avoid the `-byol` operating system as the base image, so that IBM Cloud knows it must provide the license.
 
-* **RHEL**: cloud-init registers the system automatically against IBM's Red Hat Satellite servers. After a migration, run `sudo cloud-init clean --logs --reboot` to trigger the registration again, and check the result with `subscription-manager status`.
-* **Windows**: point Windows to IBM's KMS server (`kms.adn.networklayer.com:1688`), install the GVLK for your edition, and activate with `slmgr /ato`. Don't rely on Cloudbase-Init for this: it only knows the keys up to Windows Server 2016.
+* **RHEL**: cloud-init registers the system automatically. After a migration, unregister any existing subscription with `sudo subscription-manager unregister`, then run `sudo cloud-init clean --logs --reboot` to trigger the registration again, and check the result with `subscription-manager status`.
+* **Windows**: remove any existing license, point Windows to IBM's KMS server (`kms.adn.networklayer.com:1688`), install the GVLK for your edition, and activate with `slmgr /ato`. Don't rely on Cloudbase-Init for this, it only knows the keys up to Windows Server 2016.
 
 # FAQs
 
@@ -215,15 +223,15 @@ slmgr /ckms
 ### 5. Show the Windows license status
 
 Basic license information:
-```bash
+```powershell
 slmgr /dli
 ```
 Detailed license information:
-```bash
+```powershell
 slmgr /dlv
 ```  
 Shows whether Windows is permanently activated or when the activation expires:
-```bash
+```powershell
 slmgr /xpr
 ```
 
