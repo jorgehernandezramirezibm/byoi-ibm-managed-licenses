@@ -248,7 +248,7 @@ Whether you import your own image or use live migration, you can license RHEL, S
 
 * **RHEL**: automatic. cloud-init registers the system against IBM's Red Hat subscription servers.
 * **SUSE**: automatic. cloud-init runs an IBM script that registers the system against IBM's RMT server.
-* **Windows**: manual. You install the GVLK for your edition and activate it against IBM's KMS server (`kms.adn.networklayer.com:1688`).
+* **Windows**: manual. You install the GVLK for your edition and activate it against IBM's KMS server.
 
 # FAQs
 
