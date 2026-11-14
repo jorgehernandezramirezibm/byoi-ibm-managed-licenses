@@ -47,7 +47,7 @@ We tested this procedure on the following operating system versions:
 | 2025 Standard          | 1.1.6                  |
 
 > [!WARNING]
-> IBM may change the subscription process for RHEL and Windows in the future, including the cloud-init and KMS configuration. If this procedure stops working, contact IBM Cloud Support.
+> IBM may change the subscription process for RHEL, SUSE and Windows in the future, including the cloud-init and KMS configuration. If this procedure stops working, contact IBM Cloud Support.
 
 # Before you start
 
