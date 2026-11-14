@@ -246,9 +246,9 @@ A GVLK (Generic Volume License Key) is a public product key published by Microso
 
 Whether you import your own image or use live migration, you can license RHEL, SUSE and Windows on IBM Cloud VPC through an **IBM-managed subscription** instead of bringing your own license. The key is to avoid the `-byol` operating system as the base image, so that IBM Cloud knows it must provide the license.
 
-* **RHEL**: cloud-init registers the system automatically. After a migration, remove any existing registration with `sudo subscription-manager clean`, then run `sudo cloud-init clean --logs --reboot` to trigger the registration again, and check the result with `subscription-manager status`.
-* **SUSE**: an IBM script in the cloud-init vendor-data registers the system automatically against IBM's RMT server. After a migration, remove any existing registration with `sudo SUSEConnect --cleanup`, then run `sudo cloud-init clean --logs --reboot` to trigger the registration again, and check the result with `SUSEConnect --status-text`.
-* **Windows**: remove any existing license, point Windows to IBM's KMS server (`kms.adn.networklayer.com:1688`), install the GVLK for your edition, and activate with `slmgr /ato`. Don't rely on Cloudbase-Init for this, it only knows the keys up to Windows Server 2016.
+* **RHEL**: automatic. cloud-init registers the system against IBM's Red Hat subscription servers.
+* **SUSE**: automatic. cloud-init runs an IBM script that registers the system against IBM's RMT server.
+* **Windows**: manual. You install the GVLK for your edition and activate it against IBM's KMS server (`kms.adn.networklayer.com:1688`).
 
 # FAQs
 
