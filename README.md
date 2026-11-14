@@ -1,8 +1,8 @@
-# Using IBM-managed OS licenses for migrated RHEL and Windows VSIs on IBM Cloud VPC
+# Using IBM-managed OS licenses for migrated RHEL, SUSE and Windows VSIs on IBM Cloud VPC
 
 When you bring an operating system to IBM Cloud, whether you import your own image or use live migration, you usually bring your own license too.
 
-This guide covers the other option: licensing that operating system through an **IBM-managed subscription**, so IBM Cloud provides the license instead. It covers **RHEL** and **Windows Server** on IBM Cloud VPC Virtual Server Instances (VSIs), and works with any migration method, including **Bring Your Own Image (BYOI)** and **live migration** with tools such as RackWare.
+This guide covers the other option: licensing that operating system through an **IBM-managed subscription**, so IBM Cloud provides the license instead. It covers **RHEL**, **SUSE Linux Enterprise Server (SLES)** and **Windows Server** on IBM Cloud VPC Virtual Server Instances (VSIs), and works with any migration method, including **Bring Your Own Image (BYOI)** and **live migration** with tools such as RackWare.
 
 > [!NOTE]
 > This is a community guide, not official IBM documentation. Last tested: November 2026. 
@@ -15,8 +15,9 @@ RHEL and Windows are licensed differently:
 |---------|------------------------------------------------------|
 | RHEL    | Automatic registration through cloud-init            |
 | Windows | Manual activation (`slmgr`) with a GVLK against IBM's KMS server |
+| SUSE    | Automatic registration through a cloud-init vendor-data script against IBM's RMT server |
 
-### Tested environments
+We tested this procedure on the following operating system versions:
 
 **RHEL** (VSI profile: `cx3d-2x5`)
 
@@ -27,6 +28,14 @@ RHEL and Windows are licensed differently:
 | 9.8          | 24.4-8.el9_8.1     |
 | 10.0         | 24.4-3.el10_0.4    |
 | 10.2         | 24.4-7.el10_2.1    |
+
+**SUSE Linux Enterprise Server**
+
+| SLES version | cloud-init version | suseconnect-ng version |
+|--------------|--------------------|------------------------|
+| 15 SP6       | 23.3-150100.8.85.4 | 1.13.0                 |
+| 15 SP7       | 23.3-150100.8.85.4 | 1.23.0                 |
+| 16.0         | 25.1.3-160000.3.1  | 1.23.0                 |
 
 **Windows Server** (VSI profile: `cx3d-4x10`)
 
@@ -121,6 +130,73 @@ Expected output (example for `eu-es`):
 
 ![Diagram of the cloud-init registration flow: IBM Cloud provides the subscription details through the cloud-init data source, and cloud-init registers the VSI against IBM's Red Hat Satellite servers](cloudinit.avif)
 
+# Licensing SUSE
+
+On SUSE Linux Enterprise Server (SLES), IBM Cloud registers the system against its own RMT server (for example, `susermtmad0401.adn.networklayer.com`) with a shell script that it delivers through the cloud-init vendor-data. cloud-init runs that script on the first boot.
+
+### 1. Remove the current registration
+
+If the system comes with an existing registration, run:
+
+```bash
+sudo SUSEConnect --cleanup
+```
+
+Like `subscription-manager clean` on RHEL, it removes the registration only locally, so it doesn't need to reach the original registration server and it doesn't affect the source system. It deletes the system credentials and the services and repositories that the registration created.
+
+Check that the system is no longer registered:
+
+```bash
+sudo SUSEConnect --status-text
+```
+
+Every product should show `Not Registered`.
+
+> [!NOTE]
+> `/etc/SUSEConnect` (the registration server URL) is kept. You don't need to delete it, because the IBM registration script rewrites it.
+
+On older releases such as SLES 12, `SUSEConnect --cleanup` may not exist or may not remove everything. In that case, delete the registration files manually:
+
+```bash
+sudo rm -f /etc/SUSEConnect
+sudo rm -f /etc/zypp/credentials.d/*
+sudo rm -f /etc/zypp/services.d/*
+sudo rm -f /etc/zypp/repos.d/*
+```
+
+### 2. Rerun cloud-init
+
+```bash
+sudo cloud-init clean --logs --reboot
+```
+
+The same caution as for RHEL applies: see [Rerun cloud-init](#2-rerun-cloud-init).
+
+### 3. Check the registration status
+
+```bash
+sudo SUSEConnect --status-text
+```
+
+Every product should show `Registered`. To check which server the system is registered against:
+
+```bash
+sudo grep url /etc/SUSEConnect
+```
+
+Expected output (example for `eu-es`):
+
+```text
+url: https://susermtmad0401.adn.networklayer.com/
+```
+
+### How it works
+
+* IBM Cloud attaches a registration script to the VSI through the cloud-init vendor-data.
+* During provisioning, cloud-init runs that script, which registers the system with `SUSEConnect` against IBM's RMT server.
+
+For more details, see [SUSE registration script](#6-suse-registration-script).
+
 # Licensing Windows
 
 On Windows, you activate the license against IBM's KMS server (`kms.adn.networklayer.com:1688`) using Microsoft's public KMS client keys (GVLKs).
@@ -168,9 +244,10 @@ A GVLK (Generic Volume License Key) is a public product key published by Microso
 
 # Summary
 
-Whether you import your own image or use live migration, you can license RHEL and Windows on IBM Cloud VPC through an **IBM-managed subscription** instead of bringing your own license. The key is to avoid the `-byol` operating system as the base image, so that IBM Cloud knows it must provide the license.
+Whether you import your own image or use live migration, you can license RHEL, SUSE and Windows on IBM Cloud VPC through an **IBM-managed subscription** instead of bringing your own license. The key is to avoid the `-byol` operating system as the base image, so that IBM Cloud knows it must provide the license.
 
 * **RHEL**: cloud-init registers the system automatically. After a migration, remove any existing registration with `sudo subscription-manager clean`, then run `sudo cloud-init clean --logs --reboot` to trigger the registration again, and check the result with `subscription-manager status`.
+* **SUSE**: an IBM script in the cloud-init vendor-data registers the system automatically against IBM's RMT server. After a migration, remove any existing registration with `sudo SUSEConnect --cleanup`, then run `sudo cloud-init clean --logs --reboot` to trigger the registration again, and check the result with `SUSEConnect --status-text`.
 * **Windows**: remove any existing license, point Windows to IBM's KMS server (`kms.adn.networklayer.com:1688`), install the GVLK for your edition, and activate with `slmgr /ato`. Don't rely on Cloudbase-Init for this, it only knows the keys up to Windows Server 2016.
 
 # FAQs
@@ -238,6 +315,12 @@ Shows whether Windows is permanently activated or when the activation expires:
 ```powershell
 slmgr /xpr
 ```
+
+### 6. SUSE registration script
+
+* IBM Cloud adds a shell script to the cloud-init vendor-data. You can see it with `sudo cloud-init query vendordata`, or in `/var/lib/cloud/instance/scripts/vendor/` after the first boot.
+* The script downloads `rmt-client-setup` from IBM's RMT server and runs it, which installs the RMT certificate and registers the system with `SUSEConnect`.
+* If the registration fails, the script cleans up and retries, up to three times.
 
 # References
 
