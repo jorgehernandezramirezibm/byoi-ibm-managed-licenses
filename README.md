@@ -29,7 +29,7 @@ We tested this procedure on the following operating system versions:
 | 10.0         | 24.4-3.el10_0.4    |
 | 10.2         | 24.4-7.el10_2.1    |
 
-**SUSE Linux Enterprise Server**
+**SUSE Linux Enterprise Server** (VSI profile: `bxf-2x8`)
 
 | SLES version | cloud-init version | suseconnect-ng version |
 |--------------|--------------------|------------------------|
