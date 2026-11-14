@@ -177,7 +177,7 @@ Whether you import your own image or use live migration, you can license RHEL an
 
 ### 1. Why you can't rely on Cloudbase-Init to activate Windows
 
-Cloudbase-Init can set the KMS client key for you, but it takes the key from the list in [productkeys.py](https://github.com/cloudbase/cloudbase-init/blob/master/cloudbaseinit/utils/windows/productkeys.py). That list only goes up to Windows Server 2016, so activation fails for any newer version. In our tests, Windows Server 2016 Standard activated correctly and newer versions did not.
+Cloudbase-Init can set the KMS client key for you, but it takes the key from a hardcoded list in [productkeys.py](https://github.com/cloudbase/cloudbase-init/blob/1.1.9/cloudbaseinit/utils/windows/productkeys.py). As of version 1.1.9, the latest at the time of writing, that list only goes up to Windows Server 2016, so activation fails for any newer version. In our tests, Windows Server 2016 Standard activated correctly and newer versions did not.
 
 > [!NOTE]
 > This method works only for Windows Server 2016.
