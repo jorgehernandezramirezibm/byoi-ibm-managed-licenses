@@ -331,3 +331,4 @@ slmgr /xpr
 * [cloud-init source code](https://github.com/canonical/cloud-init/tree/main/cloudinit)
 * [Cloudbase-Init source code](https://github.com/cloudbase/cloudbase-init)
 * [Microsoft: KMS client activation keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys)
+* [Support Page IBM Activating windows license windows](https://www.ibm.com/support/pages/activating-windows-license-ibm-cloud-server-classic-infrastructure)
